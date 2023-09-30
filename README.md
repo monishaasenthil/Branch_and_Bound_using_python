@@ -1,0 +1,45 @@
+# Branch_and_Bound_using_python
+Branch is the process to find the sub-solution extend the problem further, cheapest partial path, to find optimal solution, Start from the source node and expand the node with the minimum value for that, again check the node with minimum value, explore the next of the minimum value, a solution with minimum value .
+graph = {
+    's': {'a': 3, 'b': 5},
+    'a': {'d': 3, 'b': 4},
+    'b': {'c': 4},
+    'd': {'g': 5},
+    'c': {'g': 7},
+    'e': {},
+    'g': {}
+}
+
+def branch_and_bound_search(graph, start, goal):
+    # Priority Queue with paths
+    paths_queue = [(start, [start], 0)] # Tuple format: (current_node, path_so_far, cost_so_far)
+    best_path, best_cost = None, float('inf')
+    
+    while paths_queue:
+        current_node, current_path, current_cost = paths_queue.pop(0) # Extract the path with the smallest cost
+        if current_node == goal:
+            if current_cost < best_cost: # If this path is better than the current best
+                best_path, best_cost = current_path, current_cost
+        for neighbor, dist in graph.get(current_node, {}).items():
+            if neighbor not in current_path:
+                new_cost = current_cost + dist
+                # Only continue with this path if its cost is smaller than the best known
+                if new_cost < best_cost:
+                    paths_queue.append((neighbor, current_path + [neighbor], new_cost))
+                    paths_queue = sorted(paths_queue, key=lambda x: x[2]) # Sort based on cost
+
+    if best_path:
+        return best_path, best_cost
+    return None, None
+
+if __name__ == "__main__":
+    start_node = 's'
+    goal_node = 'g'
+
+    path, cost = branch_and_bound_search(graph, start_node, goal_node)
+
+    if path:
+        path_str = ' -> '.join(path)
+        print(f"Optimal Path: {path_str} = {cost}")
+    else:
+        print(f"No path found from {start_node} to {goal_node}.")
